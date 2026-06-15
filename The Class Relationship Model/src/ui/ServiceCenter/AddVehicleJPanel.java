@@ -1,0 +1,486 @@
+package ui.ServiceCenter;
+
+import model.*;
+import ui.MainJFrame;
+import javax.swing.JOptionPane;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+/**
+ * "Vehicle & Owner" workflow: registers an owner together with a vehicle and
+ * its opted service. NetBeans GUI Builder form (see AddVehicleJPanel.form),
+ * centered to match the PDF (Owner Details over a periwinkle Vehicle Details
+ * box). Every field is required and validated; the primitive types int (year),
+ * long (mileage) and boolean (warranty) are parsed/checked with error dialogs.
+ *
+ * @author vyngo
+ */
+public class AddVehicleJPanel extends javax.swing.JPanel {
+
+    private final MainJFrame mainFrame;
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
+
+    public AddVehicleJPanel(MainJFrame mainFrame) {
+        this.mainFrame = mainFrame;
+        DATE_FORMAT.setLenient(false);
+        initComponents();
+        onShow();
+    }
+
+    /** Refreshes auto IDs and the service drop-down each time the card is shown. */
+    @SuppressWarnings("unchecked")
+    public void onShow() {
+        txtOwnerID.setText(String.valueOf(Business.getInstance().peekNextOwnerID()));
+        txtVehicleID.setText(String.valueOf(Business.getInstance().peekNextVehicleID()));
+        Object selected = cmbService.getSelectedItem();
+        cmbService.removeAllItems();
+        for (Service s : Business.getInstance().getAllServices()) {
+            cmbService.addItem(s);
+        }
+        if (selected != null) cmbService.setSelectedItem(selected);
+    }
+
+    private void registerService() {
+        String firstName = txtFirstName.getText().trim();
+        String lastName  = txtLastName.getText().trim();
+        String dateStr   = txtServiceDate.getText().trim();
+        String make      = txtMake.getText().trim();
+        String model     = txtModel.getText().trim();
+        String yearStr   = txtYear.getText().trim();
+        String regNum    = txtRegNum.getText().trim();
+        String mileStr   = txtMileage.getText().trim();
+
+        if (firstName.isEmpty() || lastName.isEmpty() || dateStr.isEmpty() || make.isEmpty()
+                || model.isEmpty() || yearStr.isEmpty() || regNum.isEmpty() || mileStr.isEmpty()) {
+            error("All fields are required. Please fill in every field.");
+            return;
+        }
+        if (cmbService.getSelectedItem() == null) {
+            error("Please select a service. Create one under 'Services' first.");
+            return;
+        }
+
+        Date serviceDate;
+        try {
+            serviceDate = DATE_FORMAT.parse(dateStr);
+        } catch (ParseException ex) {
+            error("Service Date must be a valid date in dd/MM/yyyy format (e.g., 02/06/2026).");
+            return;
+        }
+
+        int year;
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        try {
+            year = Integer.parseInt(yearStr);
+            if (year < 1900 || year > currentYear + 1) {
+                error("Year must be a whole number between 1900 and " + (currentYear + 1) + ".");
+                return;
+            }
+        } catch (NumberFormatException ex) {
+            error("Year must be a whole number (e.g., 2021).");
+            return;
+        }
+
+        long mileage;
+        try {
+            mileage = Long.parseLong(mileStr);
+            if (mileage < 0) {
+                error("Mileage cannot be negative.");
+                return;
+            }
+        } catch (NumberFormatException ex) {
+            error("Mileage must be a whole number (e.g., 45000).");
+            return;
+        }
+
+        boolean underWarranty = chkWarranty.isSelected();
+
+        Service service = (Service) cmbService.getSelectedItem();
+        Owner owner = Business.getInstance().addOwner(firstName, lastName);
+        Vehicle v = Business.getInstance().addVehicle(make, model, year, regNum,
+                mileage, underWarranty, service, serviceDate, owner);
+
+        JOptionPane.showMessageDialog(this,
+                "Vehicle registered successfully!\nOwner ID: " + owner.getOwnerID()
+                        + "\nVehicle ID: " + v.getVehicleID(),
+                "Success", JOptionPane.INFORMATION_MESSAGE);
+        clearForm();
+        onShow();
+    }
+
+    private void clearForm() {
+        txtFirstName.setText("");
+        txtLastName.setText("");
+        txtServiceDate.setText("");
+        txtMake.setText("");
+        txtModel.setText("");
+        txtYear.setText("");
+        txtRegNum.setText("");
+        txtMileage.setText("");
+        chkWarranty.setSelected(false);
+    }
+
+    private void error(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "Validation Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
+        header = new javax.swing.JPanel();
+        btnBack = new javax.swing.JButton();
+        lblTitle = new javax.swing.JLabel();
+        body = new javax.swing.JPanel();
+        lblOwnerID = new javax.swing.JLabel();
+        txtOwnerID = new javax.swing.JTextField();
+        lblFirstName = new javax.swing.JLabel();
+        txtFirstName = new javax.swing.JTextField();
+        lblLastName = new javax.swing.JLabel();
+        txtLastName = new javax.swing.JTextField();
+        lblServiceDate = new javax.swing.JLabel();
+        txtServiceDate = new javax.swing.JTextField();
+        pnlVehicle = new javax.swing.JPanel();
+        lblVehTitle = new javax.swing.JLabel();
+        lblVehicleID = new javax.swing.JLabel();
+        txtVehicleID = new javax.swing.JTextField();
+        lblMake = new javax.swing.JLabel();
+        txtMake = new javax.swing.JTextField();
+        lblModel = new javax.swing.JLabel();
+        txtModel = new javax.swing.JTextField();
+        lblYear = new javax.swing.JLabel();
+        txtYear = new javax.swing.JTextField();
+        lblReg = new javax.swing.JLabel();
+        txtRegNum = new javax.swing.JTextField();
+        lblMileage = new javax.swing.JLabel();
+        txtMileage = new javax.swing.JTextField();
+        lblWarranty = new javax.swing.JLabel();
+        chkWarranty = new javax.swing.JCheckBox();
+        lblService = new javax.swing.JLabel();
+        cmbService = new javax.swing.JComboBox();
+        btnRegister = new javax.swing.JButton();
+
+        setBackground(new java.awt.Color(204, 204, 245));
+        setLayout(new java.awt.BorderLayout());
+
+        header.setOpaque(false);
+        header.setLayout(new java.awt.GridBagLayout());
+
+        btnBack.setText("<< Back");
+        btnBack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBackActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 20, 6, 10);
+        header.add(btnBack, gridBagConstraints);
+
+        lblTitle.setFont(new java.awt.Font("Serif", 1, 28)); // NOI18N
+        lblTitle.setText("Owner Details");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 0, 6, 120);
+        header.add(lblTitle, gridBagConstraints);
+
+        add(header, java.awt.BorderLayout.NORTH);
+
+        body.setOpaque(false);
+        body.setLayout(new java.awt.GridBagLayout());
+
+        lblOwnerID.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
+        lblOwnerID.setText("Owner ID :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 10);
+        body.add(lblOwnerID, gridBagConstraints);
+
+        txtOwnerID.setEditable(false);
+        txtOwnerID.setColumns(16);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 10);
+        body.add(txtOwnerID, gridBagConstraints);
+
+        lblFirstName.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
+        lblFirstName.setText("Owner First Name :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 10);
+        body.add(lblFirstName, gridBagConstraints);
+
+        txtFirstName.setColumns(16);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 10);
+        body.add(txtFirstName, gridBagConstraints);
+
+        lblLastName.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
+        lblLastName.setText("Owner Last Name :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 10);
+        body.add(lblLastName, gridBagConstraints);
+
+        txtLastName.setColumns(16);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 10);
+        body.add(txtLastName, gridBagConstraints);
+
+        lblServiceDate.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
+        lblServiceDate.setText("Service Date (dd/MM/yyyy) :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 10);
+        body.add(lblServiceDate, gridBagConstraints);
+
+        txtServiceDate.setColumns(16);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 10);
+        body.add(txtServiceDate, gridBagConstraints);
+
+        pnlVehicle.setBackground(new java.awt.Color(130, 130, 240));
+        pnlVehicle.setLayout(new java.awt.GridBagLayout());
+
+        lblVehTitle.setFont(new java.awt.Font("Serif", 1, 18)); // NOI18N
+        lblVehTitle.setText("Vehicle Details");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 12, 10);
+        pnlVehicle.add(lblVehTitle, gridBagConstraints);
+
+        lblVehicleID.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
+        lblVehicleID.setText("Vehicle ID :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 15, 5, 10);
+        pnlVehicle.add(lblVehicleID, gridBagConstraints);
+
+        txtVehicleID.setEditable(false);
+        txtVehicleID.setColumns(16);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 15);
+        pnlVehicle.add(txtVehicleID, gridBagConstraints);
+
+        lblMake.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
+        lblMake.setText("Make :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 15, 5, 10);
+        pnlVehicle.add(lblMake, gridBagConstraints);
+
+        txtMake.setColumns(16);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 15);
+        pnlVehicle.add(txtMake, gridBagConstraints);
+
+        lblModel.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
+        lblModel.setText("Model :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 15, 5, 10);
+        pnlVehicle.add(lblModel, gridBagConstraints);
+
+        txtModel.setColumns(16);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 15);
+        pnlVehicle.add(txtModel, gridBagConstraints);
+
+        lblYear.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
+        lblYear.setText("Year :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 15, 5, 10);
+        pnlVehicle.add(lblYear, gridBagConstraints);
+
+        txtYear.setColumns(16);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 15);
+        pnlVehicle.add(txtYear, gridBagConstraints);
+
+        lblReg.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
+        lblReg.setText("Registration Number :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 15, 5, 10);
+        pnlVehicle.add(lblReg, gridBagConstraints);
+
+        txtRegNum.setColumns(16);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 15);
+        pnlVehicle.add(txtRegNum, gridBagConstraints);
+
+        lblMileage.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
+        lblMileage.setText("Mileage (miles) :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 15, 5, 10);
+        pnlVehicle.add(lblMileage, gridBagConstraints);
+
+        txtMileage.setColumns(16);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 15);
+        pnlVehicle.add(txtMileage, gridBagConstraints);
+
+        lblWarranty.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
+        lblWarranty.setText("Under Warranty :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 15, 5, 10);
+        pnlVehicle.add(lblWarranty, gridBagConstraints);
+
+        chkWarranty.setText("Yes, covered by warranty");
+        chkWarranty.setOpaque(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 15);
+        pnlVehicle.add(chkWarranty, gridBagConstraints);
+
+        lblService.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
+        lblService.setText("Service Opted :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 15, 10, 10);
+        pnlVehicle.add(lblService, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 10, 15);
+        pnlVehicle.add(cmbService, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.insets = new java.awt.Insets(15, 10, 10, 10);
+        body.add(pnlVehicle, gridBagConstraints);
+
+        btnRegister.setText("Register Service");
+        btnRegister.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRegisterActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.insets = new java.awt.Insets(15, 10, 15, 10);
+        body.add(btnRegister, gridBagConstraints);
+
+        add(body, java.awt.BorderLayout.CENTER);
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        mainFrame.showPanel(MainJFrame.WORK_AREA);
+    }//GEN-LAST:event_btnBackActionPerformed
+
+    private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
+        registerService();
+    }//GEN-LAST:event_btnRegisterActionPerformed
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel body;
+    private javax.swing.JButton btnBack;
+    private javax.swing.JButton btnRegister;
+    private javax.swing.JCheckBox chkWarranty;
+    private javax.swing.JComboBox cmbService;
+    private javax.swing.JPanel header;
+    private javax.swing.JLabel lblFirstName;
+    private javax.swing.JLabel lblLastName;
+    private javax.swing.JLabel lblMake;
+    private javax.swing.JLabel lblMileage;
+    private javax.swing.JLabel lblModel;
+    private javax.swing.JLabel lblOwnerID;
+    private javax.swing.JLabel lblReg;
+    private javax.swing.JLabel lblService;
+    private javax.swing.JLabel lblServiceDate;
+    private javax.swing.JLabel lblTitle;
+    private javax.swing.JLabel lblVehTitle;
+    private javax.swing.JLabel lblVehicleID;
+    private javax.swing.JLabel lblWarranty;
+    private javax.swing.JLabel lblYear;
+    private javax.swing.JPanel pnlVehicle;
+    private javax.swing.JTextField txtFirstName;
+    private javax.swing.JTextField txtLastName;
+    private javax.swing.JTextField txtMake;
+    private javax.swing.JTextField txtMileage;
+    private javax.swing.JTextField txtModel;
+    private javax.swing.JTextField txtOwnerID;
+    private javax.swing.JTextField txtRegNum;
+    private javax.swing.JTextField txtServiceDate;
+    private javax.swing.JTextField txtVehicleID;
+    private javax.swing.JTextField txtYear;
+    // End of variables declaration//GEN-END:variables
+}
